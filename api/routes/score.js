@@ -61,7 +61,7 @@ router.post("/submit-score", async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "gamezone_07866");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user_id;
     let { score, gameId } = req.body;
 

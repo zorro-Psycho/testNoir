@@ -17,7 +17,7 @@ router.get('/profile', async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gamezone_07866'); 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET ); 
     const userId = decoded.user_id;
 
     const userResult = await pool.query('SELECT * FROM Users WHERE user_id = $1', [userId]);
@@ -62,7 +62,7 @@ router.delete('/GameSessions/:id', async (req, res) => {
   }''
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gamezone_07866'); 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET ); 
     const userId = decoded.user_id;
     const { id } = req.params;
 
