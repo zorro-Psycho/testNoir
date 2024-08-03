@@ -1,52 +1,8 @@
-// const express = require('express');
-// const router = express.Router();
-// const pool = require('../../config/db'); // Ensure the path to your db config is correct
-// const jwt = require('jsonwebtoken');
-
-// router.post('/submit-score', async (req, res) => {
-//   const token = req.cookies.token;
-//   if (!token) {
-//     return res.status(401).json({ message: 'Unauthorized' });
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, 'gamezone_07866');
-//     const userId = decoded.user_id;
-//     const { score,gameId } = req.body;
-
-//     // Log the received data for debugging
-//     console.log(`User ID: ${userId}, Score: ${score}, gameId: ${gameId}`);
-
-//     const result = await pool.query(
-//       'INSERT INTO GameSessions (game_id, user_id, score) VALUES ($1, $2, $3) RETURNING *',
-//       [gameId, userId, score]
-//     );
-
-//     // Log the result of the query
-//     console.log('Score inserted:', result.rows[0]);
-
-//     res.status(200).json({ success: true, data: result.rows[0] });
-//   } catch (err) {
-//     // Log the error details for debugging
-//     console.error('Error in /submit-score:', err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
-
-// router.get('/scores', async (req, res) => {
-//   try {
-//     const result = await pool.query('SELECT * FROM GameSessions ORDER BY score DESC, created_at DESC');
-//     res.status(200).json(result.rows);
-//   } catch (err) {
-//     console.error('Error fetching scores:', err);
-//     res.status(500).json({ success: false, error: 'Internal server error' });
-//   }
-// });
-
-// module.exports = router;
+const { sql } = require('@vercel/postgres');
+require('dotenv').config();
 const express = require("express");
 const router = express.Router();
-const pool = require("../../config/db"); // Ensure the path to your db config is correct
+// const pool = require("../../config/db"); // Ensure the path to your db config is correct
 const jwt = require("jsonwebtoken");
 
 router.post("/submit-score", async (req, res) => {
@@ -77,12 +33,9 @@ router.post("/submit-score", async (req, res) => {
     }
 
     // Log the received data for debugging
-    console.log(`User ID: ${userId}, Score: ${score}, gameId: ${gameId}`);
+    // console.log(`User ID: ${userId}, Score: ${score}, gameId: ${gameId}`);
 
-    const result = await pool.query(
-      "INSERT INTO GameSessions (game_id, user_id, score) VALUES ($1, $2, $3) RETURNING *",
-      [gameId, userId, score]
-    );
+    const result = await sql`INSERT INTO GameSessions (game_id, user_id, score) VALUES (${gameId}, ${userId}, ${score}) RETURNING *`;
 
     // Log the result of the query
     console.log("Score inserted:", result.rows[0]);
@@ -97,9 +50,9 @@ router.post("/submit-score", async (req, res) => {
 
 router.get("/scores", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM GameSessions ORDER BY score DESC, created_at DESC"
-    );
+    const result = await sql`
+      SELECT * FROM GameSessions ORDER BY score DESC, created_at DESC"
+    `;
     const scores = result.rows.map((row) => {
       let score = row.score;
       if (row.game_id === 3) {

@@ -1,8 +1,9 @@
-
+const { sql } = require('@vercel/postgres');
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const  pool  = require('../../config/db'); 
+// const  pool  = require('../../config/db'); 
 const authenticateToken = require('../../config/authenticateToken');
 
 const router = express.Router();
@@ -18,13 +19,13 @@ router.put('/update-username', authenticateToken, async (req, res) => {
   
     try {
       // Check if the new username is already taken
-      const result = await pool.query('SELECT * FROM users WHERE username = $1', [newUsername]);
+      const result = await sql`SELECT * FROM users WHERE username = ${newUsername}`;
       if (result.rows.length > 0) {
         return res.status(400).json({ message: 'Username is already taken' });
       }
   
       // Update the username
-      await pool.query('UPDATE users SET username = $1 WHERE user_id = $2', [newUsername, userId]);
+      await sql`UPDATE users SET username = ${newUsername} WHERE user_id = ${userId}`;
   
       res.status(200).json({ message: 'Username updated successfully' });
     } catch (error) {
@@ -43,7 +44,7 @@ router.put('/update-password', authenticateToken, async (req, res) => {
   
     try {
       // Get the current password hash
-      const result = await pool.query('SELECT password FROM users WHERE user_id = $1', [userId]);
+      const result = await sql`SELECT password FROM users WHERE user_id = ${userId}`;
       const user = result.rows[0];
   
       if (!user) {
@@ -60,7 +61,7 @@ router.put('/update-password', authenticateToken, async (req, res) => {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
   
       // Update the password
-      await pool.query('UPDATE users SET password = $1 WHERE user_id = $2', [hashedPassword, userId]);
+      await sql`UPDATE users SET password = ${hashedPassword} WHERE user_id = ${userId}`;
   
       res.status(200).json({ message: 'Password updated successfully' });
     } catch (error) {
